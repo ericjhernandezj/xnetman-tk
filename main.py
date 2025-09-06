@@ -28,6 +28,20 @@ class NetworkInfo:
             security=wifi_device.security
         )
 
+# =======================
+# Signal Conversion
+# =======================
+
+def signal_to_bars(signal_strength: int) -> str:
+    levels = [
+        "▂",        # 0–20
+        "▂▃",       # 21–40
+        "▂▃▄",      # 41–60
+        "▂▃▄▅",     # 61–80
+        "▂▃▄▅▆",    # 81–100
+    ]
+    index = min(signal_strength // 20, 4)
+    return levels[index]
 
 # =======================
 # Network Functions
@@ -95,7 +109,7 @@ def load_networks():
             values=(
                 network.ssid,
                 network.bssid,
-                network.signal,
+                signal_to_bars(network.signal),
                 network.requires_password,
                 network.frequency,
                 network.security,
