@@ -1,1 +1,2 @@
+mac-vendor-lookup==0.1.12
 nmcli==1.5.0
