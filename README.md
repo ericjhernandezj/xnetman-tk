@@ -22,7 +22,7 @@ Extended Network Manager (Tkinter version)
 ### Additional information
 
 - [ ] Show channel and frequency. For diagnosis (2,4GHz vs 5GHz)
-- [ ] Router maker. Can be detected by MAC
+- [x] Router maker. Can be detected by MAC
 
 ### Diagnosis / Tools
 
