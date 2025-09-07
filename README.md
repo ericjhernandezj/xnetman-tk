@@ -14,8 +14,10 @@ Extended Network Manager (Tkinter version)
 ### UI/UX
 
 - [x] Use bars instead of numbers for displaying signal
+- [ ] Allow open a independent window for most detailed view
 - [ ] Color by type of security (Green for Open, Yellow for WPA, Red for WEP, etc)
 - [ ] Light/Dark mode toggle
+- [ ] Auto-refresh every X seconds (configurable)
 
 ### Additional information
 
