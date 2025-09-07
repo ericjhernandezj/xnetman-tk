@@ -13,7 +13,7 @@ Extended Network Manager (Tkinter version)
 
 ### UI/UX
 
-- [ ] Use bars instead of numbers for displaying signal
+- [x] Use bars instead of numbers for displaying signal
 - [ ] Color by type of security (Green for Open, Yellow for WPA, Red for WEP, etc)
 - [ ] Light/Dark mode toggle
 
