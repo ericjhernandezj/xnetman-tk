@@ -80,7 +80,6 @@ def get_wifi_status() -> bool:
         print(f"[Error] Unable to get Wi-Fi status: {e}")
         return False
 
-
 def scan_networks() -> list[NetworkInfo]:
     """Scan and return available Wi-Fi networks."""
     networks = []
@@ -95,7 +94,6 @@ def scan_networks() -> list[NetworkInfo]:
         print(f"[Error] Scanning networks failed: {e}")
     return networks
 
-
 def get_connected_bssid() -> tuple[bool, str | None]:
     """Get the BSSID of the currently connected Wi-Fi network."""
     try:
@@ -106,7 +104,6 @@ def get_connected_bssid() -> tuple[bool, str | None]:
     except Exception as e:
         print(f"[Error] Unable to get current BSSID: {e}")
         return False, None
-
 
 # =======================
 # UI Functions
@@ -144,7 +141,6 @@ def load_networks():
         )
 
     loading_label.config(text="")
-
 
 def load_networks_async():
     """Run load_networks in a background thread."""
