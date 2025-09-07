@@ -149,6 +149,26 @@ def load_networks_async():
     """Trigger a network scan and UI update."""
     load_networks()
 
+def on_row_double_click(event):
+    selected_item = networks_tree.selection()
+    if not selected_item:
+        return
+
+    item = networks_tree.item(selected_item)
+    values = item["values"]
+
+    detail_window = tk.Toplevel(root)
+    detail_window.title(f"Network Details: {values[0]}")
+    detail_window.geometry("400x300")
+
+    labels = [
+        "SSID", "BSSID", "Signall", "Requires Password", "Frequency", "Security", "Vendor"
+    ]
+    for i, (label, value) in enumerate(zip(labels, values)):
+        tk.Label(detail_window, text=f"{label}: {value}", anchor="w").pack(fill="x", padx=20, pady=5)
+
+#    ttk.Button(detail_window, text="Conectar", command=lambda: print(f"Connecting to {values[0]}...")).pack(pady=20)
+
 # =======================
 # UI Setup
 # =======================
@@ -172,6 +192,8 @@ refresh_button.pack()
 
 columns = ("SSID", "BSSID", "Signal", "Password Required", "Frequency", "Security", "Vendor")
 networks_tree = ttk.Treeview(root, columns=columns, show="headings")
+
+networks_tree.bind("<Double-1>", on_row_double_click)
 
 for col in columns:
     networks_tree.heading(col, text=col)
