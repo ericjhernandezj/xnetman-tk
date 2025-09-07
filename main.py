@@ -174,7 +174,7 @@ def on_row_double_click(event):
 # =======================
 
 root = tk.Tk()
-root.geometry("600x600")
+root.geometry("800x600")
 root.title("Wi-Fi Scanner")
 
 # Wi-Fi status label
