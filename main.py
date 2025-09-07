@@ -162,7 +162,7 @@ def on_row_double_click(event):
     detail_window.geometry("400x300")
 
     labels = [
-        "SSID", "BSSID", "Signall", "Requires Password", "Frequency", "Security", "Vendor"
+        "SSID", "BSSID", "Signal", "Requires Password", "Frequency", "Security", "Vendor"
     ]
     for i, (label, value) in enumerate(zip(labels, values)):
         tk.Label(detail_window, text=f"{label}: {value}", anchor="w").pack(fill="x", padx=20, pady=5)
