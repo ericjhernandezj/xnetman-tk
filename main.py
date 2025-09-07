@@ -173,6 +173,7 @@ networks_tree = ttk.Treeview(root, columns=columns, show="headings")
 
 for col in columns:
     networks_tree.heading(col, text=col)
+    networks_tree.column(col, stretch=True)
 
 networks_tree.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
 networks_tree.tag_configure("highlight", background="#d0e7ff")  # Light blue row for current network
