@@ -110,20 +110,24 @@ def get_connected_bssid() -> tuple[bool, str | None]:
 # =======================
 
 def load_networks():
-    """Load available networks into the UI."""
+    """Scan for networks in a background thread, then update UI in main thread."""
+    def do_scan():
+        is_connected, connected_bssid = get_connected_bssid()
+        networks = scan_networks()
+        wifi_status = "On" if get_wifi_status() else "Off"
+        # Schedule UI update in main thread
+        root.after(0, lambda: update_networks_ui(networks, is_connected, connected_bssid, wifi_status))
+
     loading_label.config(text="Loading networks...")
+    threading.Thread(target=do_scan, daemon=True).start()
 
-    is_connected, connected_bssid = get_connected_bssid()
-
-    # Update Wi-Fi status label
-    wifi_status_content.config(text="On" if get_wifi_status() else "Off")
-
+def update_networks_ui(networks, is_connected, connected_bssid, wifi_status):
+    wifi_status_content.config(text=wifi_status)
     # Clear existing rows
     for row in networks_tree.get_children():
         networks_tree.delete(row)
-
     # Scan and display networks
-    for network in scan_networks():
+    for network in networks:
         is_current = is_connected and network.bssid == connected_bssid
         networks_tree.insert(
             "",
@@ -139,13 +143,11 @@ def load_networks():
             ),
             tags=("highlight",) if is_current else ()
         )
-
     loading_label.config(text="")
 
 def load_networks_async():
-    """Run load_networks in a background thread."""
-    threading.Thread(target=load_networks, daemon=True).start()
-
+    """Trigger a network scan and UI update."""
+    load_networks()
 
 # =======================
 # UI Setup
