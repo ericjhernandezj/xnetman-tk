@@ -3,6 +3,7 @@ from dataclasses import dataclass
 import tkinter as tk
 from tkinter import ttk
 import nmcli
+from mac_vendor_lookup import MacLookup
 
 # =======================
 # Data Models
@@ -16,17 +17,41 @@ class NetworkInfo:
     requires_password: bool
     frequency: int | None = None
     security: str | None = None
+    vendor: str | None = None
 
     @classmethod
     def from_wifi_device(cls, wifi_device):
+        vendor = get_vendor_from_bssid(wifi_device.bssid)
         return cls(
             ssid=wifi_device.ssid,
             bssid=wifi_device.bssid,
             signal=wifi_device.signal,
             requires_password=bool(wifi_device.security),
             frequency=wifi_device.freq,
-            security=wifi_device.security
+            security=wifi_device.security,
+            vendor=vendor
         )
+
+# =======================
+# Vendor Lookup Function
+# =======================
+
+mac_lookup = MacLookup()
+
+def get_vendor_from_bssid(bssid: str) -> str:
+    """
+    Looks up and returns the vendor name associated with a given BSSID (MAC address).
+
+    Args:
+        bssid (str): The BSSID (MAC address) to look up.
+
+    Returns:
+        str: The vendor name if found, otherwise "Unknown".
+    """
+    try:
+        return mac_lookup.lookup(bssid)
+    except Exception:
+        return "Unknown"
 
 # =======================
 # Signal Conversion
@@ -113,6 +138,7 @@ def load_networks():
                 network.requires_password,
                 network.frequency,
                 network.security,
+                network.vendor
             ),
             tags=("highlight",) if is_current else ()
         )
@@ -146,8 +172,7 @@ loading_label.pack(pady=(0, 10))
 refresh_button = ttk.Button(root, text="Refresh", command=load_networks_async)
 refresh_button.pack()
 
-# Networks table
-columns = ("SSID", "BSSID", "Signal", "Password Required", "Frequency", "Security")
+columns = ("SSID", "BSSID", "Signal", "Password Required", "Frequency", "Security", "Vendor")
 networks_tree = ttk.Treeview(root, columns=columns, show="headings")
 
 for col in columns:
