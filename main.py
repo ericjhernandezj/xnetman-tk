@@ -316,37 +316,131 @@ def switch_frame(show, hide):
 # UI Setup
 # =======================
 
-root = tk.Tk()
-root.geometry("800x600")
-root.title("Wi-Fi Scanner")
+class WiFiScannerApp:
+    def __init__(self):
+        self.root = tk.Tk()
+        self.setup_main_window()
+        self.create_main_frame()
+        self.create_detail_frame()
+        
+    def setup_main_window(self):
+        """Configure the main window."""
+        self.root.geometry("900x700")
+        self.root.title("WiFi Network Scanner")
+        self.root.minsize(800, 600)
+    
+    def create_main_frame(self):
+        """Create the main frame with network list."""
+        self.main_frame = tk.Frame(self.root)
+        self.main_frame.pack(fill="both", expand=True)
+        
+        # Header section
+        header_frame = tk.Frame(self.main_frame)
+        header_frame.pack(fill="x", padx=20, pady=20)
+        
+        title_label = tk.Label(header_frame, text="WiFi Network Scanner", 
+                              font=("Arial", 18, "bold"))
+        title_label.pack()
+        
+        # Status and controls section
+        controls_frame = tk.Frame(self.main_frame)
+        controls_frame.pack(fill="x", padx=20, pady=(0, 10))
+        
+        # WiFi status
+        status_frame = tk.Frame(controls_frame)
+        status_frame.pack(fill="x", pady=5)
+        
+        tk.Label(status_frame, text="WiFi Status:", font=("Arial", 10, "bold")).pack(side="left")
+        self.wifi_status_content = tk.Label(status_frame, text="Loading...")
+        self.wifi_status_content.pack(side="left", padx=(10, 0))
+        
+        # Loading and refresh controls
+        control_buttons_frame = tk.Frame(controls_frame)
+        control_buttons_frame.pack(fill="x", pady=5)
+        
+        self.refresh_button = ttk.Button(control_buttons_frame, text="🔄 Refresh Networks", 
+                                        command=load_networks_async)
+        self.refresh_button.pack(side="left")
+        
+        self.loading_label = tk.Label(control_buttons_frame, text="")
+        self.loading_label.pack(side="left", padx=(20, 0))
+        
+        # Instructions
+        instructions = tk.Label(self.main_frame, 
+                               text="Click on any network to view detailed information",
+                               font=("Arial", 10))
+        instructions.pack(pady=(0, 10))
+        
+        # Networks table
+        self.create_networks_table()
+        
+    def create_networks_table(self):
+        """Create the networks treeview table."""
+        # Frame for treeview and scrollbar
+        table_frame = tk.Frame(self.main_frame)
+        table_frame.pack(fill="both", expand=True, padx=20, pady=(0, 20))
+        
+        # Define columns
+        columns = ("SSID", "BSSID", "Signal", "Password Required", "Frequency", "Security", "Vendor")
+        self.networks_tree = ttk.Treeview(table_frame, columns=columns, show="headings", height=15)
+        
+        # Configure column headings and widths
+        column_configs = {
+            "SSID": {"width": 150, "anchor": "w"},
+            "BSSID": {"width": 140, "anchor": "center"},
+            "Signal": {"width": 100, "anchor": "center"},
+            "Password Required": {"width": 120, "anchor": "center"},
+            "Frequency": {"width": 100, "anchor": "center"},
+            "Security": {"width": 100, "anchor": "center"},
+            "Vendor": {"width": 120, "anchor": "w"}
+        }
+        
+        for col in columns:
+            self.networks_tree.heading(col, text=col)
+            config = column_configs.get(col, {"width": 100, "anchor": "center"})
+            self.networks_tree.column(col, width=config["width"], anchor=config["anchor"])
+        
+        # Bind single click event (removed double-click)
+        self.networks_tree.bind("<Button-1>", on_network_select)
+        self.networks_tree.bind("<Return>", on_network_select)  # Also respond to Enter key
+        
+        # Scrollbar
+        scrollbar = ttk.Scrollbar(table_frame, orient="vertical", command=self.networks_tree.yview)
+        self.networks_tree.configure(yscrollcommand=scrollbar.set)
+        
+        # Pack table and scrollbar
+        self.networks_tree.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
+        
+        # Configure row highlighting
+        self.networks_tree.tag_configure("highlight", background="lightblue")  # Standard light blue for current network
+        
+    def create_detail_frame(self):
+        """Create the detail frame for showing network information."""
+        self.network_detailed_frame = tk.Frame(self.root)
+        
+    def run(self):
+        """Start the application."""
+        # Start initial network scan
+        self.main_frame.after(1000, load_networks_async)
+        self.root.mainloop()
 
-# Wi-Fi status label
-tk.Label(root, text="Wi-Fi Status").pack(padx=20, pady=10)
-wifi_status_content = tk.Label(root, text="Loading...")
-wifi_status_content.pack()
+# Initialize the app
+app = WiFiScannerApp()
 
-# Loading message
-loading_label = tk.Label(root, text="", fg="blue")
-loading_label.pack(pady=(0, 10))
+# Make global references for backward compatibility
+root = app.root
+main_frame = app.main_frame
+network_detailed_frame = app.network_detailed_frame
+networks_tree = app.networks_tree
+wifi_status_content = app.wifi_status_content
+loading_label = app.loading_label
+refresh_button = app.refresh_button
 
-# Refresh button
-refresh_button = ttk.Button(root, text="Refresh", command=load_networks_async)
-refresh_button.pack()
 
-columns = ("SSID", "BSSID", "Signal", "Password Required", "Frequency", "Security", "Vendor")
-networks_tree = ttk.Treeview(root, columns=columns, show="headings")
 
-networks_tree.bind("<Double-1>", on_row_double_click)
 
-for col in columns:
-    networks_tree.heading(col, text=col)
-    networks_tree.column(col, stretch=True)
 
-networks_tree.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-networks_tree.tag_configure("highlight", background="#d0e7ff")  # Light blue row for current network
-
-# Start scanning after window is displayed
-root.after(1, load_networks_async)
-
-# Run the app
-root.mainloop()
+# Run the application
+if __name__ == "__main__":
+    app.run()
