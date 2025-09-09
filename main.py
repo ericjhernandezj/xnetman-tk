@@ -109,8 +109,9 @@ def scan_networks() -> list[NetworkInfo]:
 def get_connected_bssid() -> tuple[bool, str | None]:
     """Get the BSSID of the currently connected Wi-Fi network."""
     try:
-        for wifi in nmcli.device.wifi():
-            if getattr(wifi, "in_use", False):
+        wifi_devices = nmcli.device.wifi()
+        for wifi in wifi_devices:
+            if wifi.in_use:
                 return True, wifi.bssid
         return False, None
     except Exception as e:
