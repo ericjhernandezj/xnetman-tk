@@ -182,25 +182,115 @@ def load_networks_async():
     """Trigger a network scan and UI update."""
     load_networks()
 
-def on_row_double_click(event):
-    selected_item = networks_tree.selection()
-    if not selected_item:
-        return
-
-    item = networks_tree.item(selected_item)
+def on_network_select(event):
+    """Handle single click on network item to show details."""
+    # Get the item that was clicked
+    item_id = networks_tree.identify_row(event.y) if hasattr(event, 'y') else None
+    
+    if not item_id:
+        # If no specific item clicked, check current selection
+        selected_items = networks_tree.selection()
+        if not selected_items:
+            return
+        item_id = selected_items[0]
+    
+    # Select the item
+    networks_tree.selection_set(item_id)
+    networks_tree.focus(item_id)
+    
+    # Get item data
+    item = networks_tree.item(item_id)
     values = item["values"]
+    
+    if not values or len(values) < 7:
+        return
+    
+    # Create network info object from the selected values
+    network_info = {
+        'ssid': values[0],
+        'bssid': values[1],
+        'signal': values[2],
+        'requires_password': values[3],
+        'frequency': values[4],
+        'security': values[5],
+        'vendor': values[6]
+    }
+    
+    # Update the detail frame with selected network info
+    show_network_details(network_info)
+    
+    # Switch to detail frame
+    switch_frame(network_detailed_frame, main_frame)
 
-    detail_window = tk.Toplevel(root)
-    detail_window.title(f"Network Details: {values[0]}")
-    detail_window.geometry("400x300")
-
-    labels = [
-        "SSID", "BSSID", "Signal", "Requires Password", "Frequency", "Security", "Vendor"
+def show_network_details(network_info):
+    """Populate the detail frame with network information."""
+    # Clear existing content widgets in detail frame
+    for widget in network_detailed_frame.winfo_children():
+        widget.destroy()
+    
+    # Create main container
+    container = tk.Frame(network_detailed_frame)
+    container.pack(fill="both", expand=True, padx=20, pady=20)
+    
+    # Header with back button
+    header_frame = tk.Frame(container)
+    header_frame.pack(fill="x", pady=(0, 20))
+    
+    back_button = ttk.Button(header_frame, text="← Back to Networks", 
+                            command=lambda: switch_frame(main_frame, network_detailed_frame))
+    back_button.pack(side="left")
+    
+    # Title
+    title_label = tk.Label(container, text=f"Network Details", 
+                          font=("Arial", 16, "bold"))
+    title_label.pack(pady=(0, 10))
+    
+    # Network name (SSID) prominently displayed
+    ssid_label = tk.Label(container, text=network_info['ssid'], 
+                         font=("Arial", 14, "bold"))
+    ssid_label.pack(pady=(0, 20))
+    
+    # Network information in a nice layout
+    info_frame = tk.LabelFrame(container, text="Network Information", 
+                              font=("Arial", 12, "bold"), padx=20, pady=15)
+    info_frame.pack(fill="x", pady=(0, 20))
+    
+    # Create info rows
+    info_data = [
+        ("BSSID:", network_info['bssid']),
+        ("Signal Strength:", network_info['signal']),
+        ("Security:", network_info['security']),
+        ("Password Required:", network_info['requires_password']),
+        ("Frequency:", network_info['frequency']),
+        ("Vendor:", network_info['vendor'])
     ]
-    for i, (label, value) in enumerate(zip(labels, values)):
-        tk.Label(detail_window, text=f"{label}: {value}", anchor="w").pack(fill="x", padx=20, pady=5)
+    
+    for i, (label_text, value_text) in enumerate(info_data):
+        row_frame = tk.Frame(info_frame)
+        row_frame.pack(fill="x", pady=8)
+        
+        label = tk.Label(row_frame, text=label_text, font=("Arial", 10, "bold"), 
+                        width=18, anchor="w")
+        label.pack(side="left")
+        
+        value = tk.Label(row_frame, text=str(value_text), anchor="w",
+                        font=("Arial", 10))
+        value.pack(side="left", fill="x", expand=True)
+    
+    # Action buttons
+    button_frame = tk.Frame(container)
+    button_frame.pack(fill="x", pady=20)
+    
+    # Connect button (centered)
+    connect_button = ttk.Button(button_frame, text="Connect to Network", 
+                               command=lambda: connect_to_network(network_info['ssid']))
+    connect_button.pack(pady=10)
+    
+    # Refresh this network button
+    refresh_network_button = ttk.Button(button_frame, text="Refresh Network Info", 
+                                       command=lambda: refresh_single_network(network_info['bssid']))
+    refresh_network_button.pack(pady=5)
 
-#    ttk.Button(detail_window, text="Conectar", command=lambda: print(f"Connecting to {values[0]}...")).pack(pady=20)
 
 # =======================
 # UI Setup
