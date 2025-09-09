@@ -291,6 +291,10 @@ def show_network_details(network_info):
                                        command=lambda: refresh_single_network(network_info['bssid']))
     refresh_network_button.pack(pady=5)
 
+def switch_frame(show, hide):
+    """Switch between frames smoothly."""
+    hide.pack_forget()
+    show.pack(fill="both", expand=True)
 
 # =======================
 # UI Setup
