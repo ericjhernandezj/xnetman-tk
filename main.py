@@ -125,13 +125,17 @@ def get_connected_bssid() -> tuple[bool, str | None]:
 def load_networks():
     """Scan for networks in a background thread, then update UI in main thread."""
     def do_scan():
-        is_connected, connected_bssid = get_connected_bssid()
-        networks = scan_networks()
-        wifi_status = "On" if get_wifi_status() else "Off"
-        # Schedule UI update in main thread
-        root.after(0, lambda: update_networks_ui(networks, is_connected, connected_bssid, wifi_status))
+        try:
+            is_connected, connected_bssid = get_connected_bssid()
+            networks = scan_networks()
+            wifi_status = "On" if get_wifi_status() else "Off"
+            # Schedule UI update in main thread
+            root.after(0, lambda: update_networks_ui(networks, is_connected, connected_bssid, wifi_status))
+        except Exception as e:
+            root.after(0, lambda: show_error(f"Failed to scan networks: {e}"))
 
-    loading_label.config(text="Loading networks...")
+    loading_label.config(text="Scanning networks...")
+    refresh_button.config(state="disabled")
     threading.Thread(target=do_scan, daemon=True).start()
 
 def update_networks_ui(networks, is_connected, connected_bssid, wifi_status):
