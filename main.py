@@ -145,28 +145,38 @@ def show_error(message: str):
     messagebox.showerror("Error", message)
 
 def update_networks_ui(networks, is_connected, connected_bssid, wifi_status):
-    wifi_status_content.config(text=wifi_status)
-    # Clear existing rows
-    for row in networks_tree.get_children():
-        networks_tree.delete(row)
-    # Scan and display networks
-    for network in networks:
-        is_current = is_connected and network.bssid == connected_bssid
-        networks_tree.insert(
-            "",
-            tk.END,
-            values=(
-                network.ssid,
-                network.bssid,
-                signal_to_bars(network.signal),
-                network.requires_password,
-                network.frequency,
-                network.security,
-                network.vendor
-            ),
-            tags=("highlight",) if is_current else ()
-        )
-    loading_label.config(text="")
+    """Update the UI with scanned networks."""
+    try:
+        wifi_status_content.config(text=wifi_status)
+        # Clear existing rows
+        for row in networks_tree.get_children():
+            networks_tree.delete(row)
+        
+        # Sort networks by signal strength (descending)
+        networks.sort(key=lambda x: x.signal, reverse=True)
+        
+        # Scan and display networks
+        for network in networks:
+            is_current = is_connected and network.bssid == connected_bssid
+            networks_tree.insert(
+                "",
+                tk.END,
+                values=(
+                    network.ssid,
+                    network.bssid,
+                    f"{network.signal}% {signal_to_bars(network.signal)}",
+                    "Yes" if network.requires_password else "No",
+                    f"{network.frequency} MHz" if network.frequency else "Unknown",
+                    network.security or "Open",
+                    network.vendor or "Unknown"
+                ),
+                tags=("highlight",) if is_current else ()
+            )
+        
+        loading_label.config(text=f"Found {len(networks)} networks")
+        refresh_button.config(state="normal")
+    except Exception as e:
+        show_error(f"Failed to update UI: {e}")
 
 def load_networks_async():
     """Trigger a network scan and UI update."""
