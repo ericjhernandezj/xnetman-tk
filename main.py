@@ -291,6 +291,17 @@ def show_network_details(network_info):
                                        command=lambda: refresh_single_network(network_info['bssid']))
     refresh_network_button.pack(pady=5)
 
+def connect_to_network(ssid):
+    """Attempt to connect to the selected network."""
+    try:
+        # This is a placeholder - you might want to implement password dialog
+        # and actual connection logic here
+        messagebox.showinfo("Connect", f"Attempting to connect to '{ssid}'...\n\n"
+                           "Note: Full connection implementation would require "
+                           "password handling and nmcli connection commands.")
+    except Exception as e:
+        messagebox.showerror("Connection Error", f"Failed to connect: {e}")
+
 def switch_frame(show, hide):
     """Switch between frames smoothly."""
     hide.pack_forget()
