@@ -1,7 +1,7 @@
 import threading
 from dataclasses import dataclass
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, messagebox
 import nmcli
 from mac_vendor_lookup import MacLookup
 
@@ -137,6 +137,12 @@ def load_networks():
     loading_label.config(text="Scanning networks...")
     refresh_button.config(state="disabled")
     threading.Thread(target=do_scan, daemon=True).start()
+
+def show_error(message: str):
+    """Show error message to user."""
+    loading_label.config(text="")
+    refresh_button.config(state="normal")
+    messagebox.showerror("Error", message)
 
 def update_networks_ui(networks, is_connected, connected_bssid, wifi_status):
     wifi_status_content.config(text=wifi_status)
