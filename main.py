@@ -83,15 +83,27 @@ def get_wifi_status() -> bool:
 def scan_networks() -> list[NetworkInfo]:
     """Scan and return available Wi-Fi networks."""
     networks = []
+
     try:
-        for wifi in nmcli.device.wifi():
-            if not wifi.ssid:
+        wifi_devices = nmcli.device.wifi()
+
+        for wifi in wifi_devices:
+            if not wifi.ssid or wifi.ssid.strip() == "":
                 continue
-            network = NetworkInfo.from_wifi_device(wifi)
-            networks.append(network)
-        print(f"[Info] Found {len(networks)} networks.")
+
+            try:
+                network = NetworkInfo.from_wifi_device(wifi)
+                # Avoid duplicates by checking if BSSID already exists
+                if not any(n.bssid == network.bssid for n in networks):
+                    networks.append(network)
+            except Exception as e:
+                print(f"[Warning] Failed to process network {wifi.ssid}: {e}")
+                continue
+
+        print(f"[Info] Found {len(networks)} unique networks.")
     except Exception as e:
         print(f"[Error] Scanning networks failed: {e}")
+    
     return networks
 
 def get_connected_bssid() -> tuple[bool, str | None]:
