@@ -302,6 +302,11 @@ def connect_to_network(ssid):
     except Exception as e:
         messagebox.showerror("Connection Error", f"Failed to connect: {e}")
 
+def refresh_single_network(bssid):
+    """Refresh information for a single network."""
+    messagebox.showinfo("Refresh", f"Refreshing network info for BSSID: {bssid}\n\n"
+                       "This would scan for updated information about this specific network.")
+
 def switch_frame(show, hide):
     """Switch between frames smoothly."""
     hide.pack_forget()
