@@ -148,6 +148,8 @@ def update_networks_ui(networks, is_connected, connected_bssid, wifi_status):
     """Update the UI with scanned networks."""
     try:
         wifi_status_content.config(text=wifi_status)
+        if wifi_status == "Off":
+            messagebox.showwarning("Wi-Fi Disabled", "Wi-Fi is turned off. Enable Wi-Fi to scan for networks.")
         # Clear existing rows
         for row in networks_tree.get_children():
             networks_tree.delete(row)
