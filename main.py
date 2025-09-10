@@ -178,8 +178,9 @@ def update_networks_ui(networks, is_connected, connected_bssid, wifi_status):
                 values=(
                     network.ssid,
                     network.bssid,
-                    f"{network.signal}% {signal_to_bars(network.signal)}",
-                    "Yes" if network.requires_password else "No",                ),
+                    f"{signal_to_bars(network.signal)}",
+                    "Yes" if network.requires_password else "No",
+                ),
                 tags=("highlight",) if is_current else ()
             )
         
