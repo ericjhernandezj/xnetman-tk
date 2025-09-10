@@ -167,11 +167,7 @@ def update_networks_ui(networks, is_connected, connected_bssid, wifi_status):
                     network.ssid,
                     network.bssid,
                     f"{network.signal}% {signal_to_bars(network.signal)}",
-                    "Yes" if network.requires_password else "No",
-                    f"{network.frequency} MHz" if network.frequency else "Unknown",
-                    network.security or "Open",
-                    network.vendor or "Unknown"
-                ),
+                    "Yes" if network.requires_password else "No",                ),
                 tags=("highlight",) if is_current else ()
             )
         
@@ -383,7 +379,7 @@ class WiFiScannerApp:
         table_frame.pack(fill="both", expand=True, padx=20, pady=(0, 20))
         
         # Define columns
-        columns = ("SSID", "BSSID", "Signal", "Password Required", "Frequency", "Security", "Vendor")
+        columns = ("SSID", "BSSID", "Signal", "Password Required")
         self.networks_tree = ttk.Treeview(table_frame, columns=columns, show="headings", height=15)
         
         # Configure column headings and widths
@@ -391,10 +387,7 @@ class WiFiScannerApp:
             "SSID": {"width": 150, "anchor": "w"},
             "BSSID": {"width": 140, "anchor": "center"},
             "Signal": {"width": 100, "anchor": "center"},
-            "Password Required": {"width": 120, "anchor": "center"},
-            "Frequency": {"width": 100, "anchor": "center"},
-            "Security": {"width": 100, "anchor": "center"},
-            "Vendor": {"width": 120, "anchor": "w"}
+            "Password Required": {"width": 120, "anchor": "center"}
         }
         
         for col in columns:
