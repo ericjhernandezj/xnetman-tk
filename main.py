@@ -15,6 +15,18 @@ class NetworkInfo:
     bssid: str
     signal: int
     requires_password: bool
+
+    @classmethod
+    def from_wifi_device(cls, wifi_device):
+        return cls(
+            ssid=wifi_device.ssid,
+            bssid=wifi_device.bssid,
+            signal=wifi_device.signal,
+            requires_password=bool(wifi_device.security),
+        )
+
+@dataclass
+class NetworkInfoExtended(NetworkInfo):
     frequency: int | None = None
     security: str | None = None
     vendor: str | None = None
