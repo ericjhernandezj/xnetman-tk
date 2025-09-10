@@ -226,9 +226,9 @@ class WiFiScannerApp:
         
     def setup_main_window(self):
         """Configure the main window."""
-        self.root.geometry("900x700")
+        self.root.geometry("600x400")
         self.root.title("xNetMan (Tkinter Edition)")
-        self.root.minsize(800, 600)
+        self.root.minsize(600, 400)
     
     def create_main_frame(self):
         """Create the main frame with network list."""
