@@ -226,7 +226,7 @@ class WiFiScannerApp:
     def setup_main_window(self):
         """Configure the main window."""
         self.root.geometry("900x700")
-        self.root.title("WiFi Network Scanner")
+        self.root.title("xNetMan (Tkinter Edition)")
         self.root.minsize(800, 600)
     
     def create_main_frame(self):
@@ -258,7 +258,7 @@ class WiFiScannerApp:
         control_buttons_frame = tk.Frame(controls_frame)
         control_buttons_frame.pack(fill="x", pady=5)
         
-        self.refresh_button = ttk.Button(control_buttons_frame, text="🔄 Refresh Networks", 
+        self.refresh_button = ttk.Button(control_buttons_frame, text="Refresh", 
                                         command=load_networks_async)
         self.refresh_button.pack(side="left")
         
@@ -267,7 +267,7 @@ class WiFiScannerApp:
         
         # Instructions
         instructions = tk.Label(self.main_frame, 
-                               text="Click on any network to view detailed information",
+                               text="Double-click on any network to view more details or connect.",
                                font=("Arial", 10))
         instructions.pack(pady=(0, 10))
         
