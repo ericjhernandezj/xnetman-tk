@@ -282,7 +282,7 @@ class WiFiScannerApp:
         table_frame.pack(fill="both", expand=True, padx=20, pady=(0, 20))
         
         # Define columns
-        columns = ("SSID", "BSSID", "Signal", "Password Required")
+        columns = ("SSID", "BSSID", "Signal", "Protected")
         self.networks_tree = ttk.Treeview(table_frame, columns=columns, show="headings", height=15)
         
         # Configure column headings and widths
@@ -290,7 +290,7 @@ class WiFiScannerApp:
             "SSID": {"width": 150, "anchor": "w"},
             "BSSID": {"width": 140, "anchor": "center"},
             "Signal": {"width": 100, "anchor": "center"},
-            "Password Required": {"width": 120, "anchor": "center"}
+            "Protected": {"width": 120, "anchor": "center"}
         }
         
         for col in columns:
