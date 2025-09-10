@@ -209,7 +209,7 @@ def refresh_single_network(bssid):
     messagebox.showinfo("Refresh", f"Refreshing network info for BSSID: {bssid}\n\n"
                        "This would scan for updated information about this specific network.")
 
-def switch_frame(show, hide):
+def switch_frame(show: tk.Frame, hide: tk.Frame) -> None:
     """Switch between frames smoothly."""
     hide.pack_forget()
     show.pack(fill="both", expand=True)
