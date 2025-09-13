@@ -146,6 +146,25 @@ class NetworkService:
             logger.error(f"Unable to get saved connections: {e}")
             return []
 
+    def connect_to_network(self, ssid: str, saved_connection: bool, password: Optional[str] = None) -> bool:
+        if saved_connection:
+            try:
+                nmcli.connection.up(name=ssid)
+                return True
+            except Exception as e:
+                logger.error(f"Unable to connect to saved network '{ssid}': {e}")
+                return False
+        else:
+            try:
+                if password:
+                    nmcli.device.wifi_connect(ssid=ssid, password=password)
+                else:
+                    nmcli.device.wifi_connect(ssid=ssid)
+                logger.info(f"Connected to network '{ssid}' successfully.")
+                return True
+            except Exception as e:
+                logger.error(f"Unable to connect to network '{ssid}': {e}")
+                return False
 
 # =======================
 # Utility Functions
