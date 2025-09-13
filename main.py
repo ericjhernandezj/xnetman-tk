@@ -5,6 +5,7 @@ from typing import Dict, List, Literal, Optional, Tuple, TypedDict, cast
 import tkinter as tk
 from tkinter import ttk, messagebox
 from nmcli.data.device import DeviceWifi
+from nmcli.data.connection import Connection
 
 import nmcli
 from mac_vendor_lookup import MacLookup
@@ -133,6 +134,17 @@ class NetworkService:
         except Exception as e:
             logger.error(f"Error getting network by BSSID: {e}")
             return None
+
+    def get_saved_connections(self) -> List[Connection]:
+        try:
+            saved_connections: List[Connection] = []
+            for conn in nmcli.connection():
+                if conn.conn_type == "wifi":
+                    saved_connections.append(conn)
+            return saved_connections
+        except Exception as e:
+            logger.error(f"Unable to get saved connections: {e}")
+            return []
 
 
 # =======================
