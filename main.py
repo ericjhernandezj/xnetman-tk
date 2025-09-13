@@ -296,62 +296,7 @@ class WiFiScannerApp:
             return
         
         bssid = values[1]
-        self.create_detail_frame(network_bssid=bssid)
-        if self.network_detailed_frame:
-            switch_frame(self.network_detailed_frame, self.main_frame)
-
-    def create_detail_frame(self, network_bssid: str = "") -> None:
-        self.network_detailed_frame = tk.Frame(self.root)
-
-        if not network_bssid:
-            messagebox.showerror(title="No Network Selected", message="No network BSSID provided")
-            switch_frame(self.main_frame, self.network_detailed_frame)
-            self.network_detailed_frame.destroy()
-            self.network_detailed_frame = None
-            return
-
-        target_network = self.network_service.get_network_by_bssid(network_bssid)
-        if not target_network:
-            messagebox.showerror(title="Network Not Found", message="Could not find the network details.")
-            switch_frame(self.main_frame, self.network_detailed_frame)
-            self.network_detailed_frame.destroy()
-            self.network_detailed_frame = None
-            return
-
-        go_back_btn = ttk.Button(
-            self.network_detailed_frame, 
-            text="Go Back",
-            command=lambda: switch_frame(self.main_frame, cast(tk.Frame, self.network_detailed_frame))
-        )
-        go_back_btn.pack(pady=5, padx=5, anchor="nw")
-
-        title_label = tk.Label(
-            self.network_detailed_frame, 
-            text="Network Details",
-            font=("Arial", 18, "bold")
-        )
-        title_label.pack(pady=20)
-
-        network_details = (
-            f"SSID: {target_network.ssid}\n"
-            f"BSSID: {target_network.bssid}\n"
-            f"Signal: {target_network.signal}\n"
-            f"Frequency: {target_network.frequency or 'Unknown'} MHz\n"
-            f"Security: {target_network.security or 'None'}\n"
-            f"Vendor: {target_network.vendor or 'Unknown'}\n"
-            f"Requires Password: {'Yes' if target_network.requires_password else 'No'}"
-        )
-
-        network_details_label = tk.Label(
-            self.network_detailed_frame, 
-            text=network_details, 
-            justify="left",
-            font=("Arial", 10)
-        )
-        network_details_label.pack(pady=10)
-
-        self.detail_content_frame = tk.Frame(self.network_detailed_frame)
-        self.detail_content_frame.pack(fill="both", expand=True)
+        NetworkDetailWindow.show_network_details(self.root, self.network_service, bssid)
 
     def show_error(self, message: str) -> None:
         self.loading_label.config(text="")
@@ -423,9 +368,116 @@ class WiFiScannerApp:
         self.root.mainloop()
 
 
-def switch_frame(show: tk.Frame, hide: tk.Frame) -> None:
-    hide.pack_forget()
-    show.pack(fill="both", expand=True)
+class NetworkDetailWindow:
+    @classmethod
+    def show_network_details(cls, parent: tk.Tk, network_service: NetworkService, network_bssid: str) -> None:
+        if not network_bssid:
+            messagebox.showerror(title="No Network Selected", message="No network BSSID provided")
+            return
+
+        target_network = network_service.get_network_by_bssid(network_bssid)
+        if not target_network:
+            messagebox.showerror(title="Network Not Found", message="Could not find the network details.")
+            return
+        
+        # Now create the window since we know the network exists
+        window = cls._create_window(parent, network_service, target_network)
+        
+        # Wait for this window to be destroyed before returning to main window
+        parent.wait_window(window)
+    
+    @classmethod
+    def _create_window(cls, parent: tk.Tk, network_service: NetworkService, target_network: NetworkInfoExtended) -> tk.Toplevel:
+        window = tk.Toplevel(parent)
+        
+        window.transient(parent)
+        
+        window.title("Network Details")
+        window.minsize(500, 350)
+        window.resizable(True, True)
+        
+        # Position window in the center of parent
+        parent_x = parent.winfo_rootx()
+        parent_y = parent.winfo_rooty()
+        parent_width = parent.winfo_width()
+        parent_height = parent.winfo_height()
+        
+        window_width = 500
+        window_height = 350
+        
+        position_x = parent_x + (parent_width - window_width) // 2
+        position_y = parent_y + (parent_height - window_height) // 2
+        
+        window.geometry(f"{window_width}x{window_height}+{position_x}+{position_y}")
+        
+        # Create content
+        cls._create_content(window, target_network)
+        
+        # Make sure the window is fully created and visible before grabbing focus
+        window.update()
+        window.deiconify()
+        window.focus_force()
+        
+        # Schedule grab_set after the window is fully drawn
+        window.after_idle(lambda: window.grab_set())
+        
+        return window
+        
+    @classmethod
+    def _create_content(cls, window: tk.Toplevel, target_network: NetworkInfoExtended) -> None:
+        main_frame = tk.Frame(window)
+        main_frame.pack(fill="both", expand=True, padx=20, pady=20)
+        
+        title_label = tk.Label(
+            main_frame, 
+            text="Network Details",
+            font=("Arial", 18, "bold")
+        )
+        title_label.pack(pady=(0, 20))
+
+        details_frame = tk.Frame(main_frame)
+        details_frame.pack(fill="both", expand=True, padx=10)
+        
+        left_frame = tk.Frame(details_frame)
+        left_frame.pack(side="left", fill="both", expand=True)
+        
+        right_frame = tk.Frame(details_frame)
+        right_frame.pack(side="left", fill="both", expand=True)
+        
+        # Left column - Basic info
+        tk.Label(left_frame, text="SSID:", font=("Arial", 10, "bold"), anchor="w").pack(fill="x", pady=2)
+        tk.Label(left_frame, text=target_network.ssid, anchor="w").pack(fill="x", pady=2)
+        
+        tk.Label(left_frame, text="BSSID:", font=("Arial", 10, "bold"), anchor="w").pack(fill="x", pady=2)
+        tk.Label(left_frame, text=target_network.bssid, anchor="w").pack(fill="x", pady=2)
+        
+        tk.Label(left_frame, text="Signal Strength:", font=("Arial", 10, "bold"), anchor="w").pack(fill="x", pady=2)
+        tk.Label(left_frame, text=f"{target_network.signal} ({signal_to_bars(target_network.signal)})", anchor="w").pack(fill="x", pady=2)
+        
+        # Right column - Additional info
+        tk.Label(right_frame, text="Frequency:", font=("Arial", 10, "bold"), anchor="w").pack(fill="x", pady=2)
+        tk.Label(right_frame, text=f"{target_network.frequency or 'Unknown'} MHz", anchor="w").pack(fill="x", pady=2)
+        
+        tk.Label(right_frame, text="Security:", font=("Arial", 10, "bold"), anchor="w").pack(fill="x", pady=2)
+        tk.Label(right_frame, text=f"{target_network.security or 'None'}", anchor="w").pack(fill="x", pady=2)
+        
+        tk.Label(right_frame, text="Vendor:", font=("Arial", 10, "bold"), anchor="w").pack(fill="x", pady=2)
+        tk.Label(right_frame, text=f"{target_network.vendor or 'Unknown'}", anchor="w").pack(fill="x", pady=2)
+        
+        # Bottom section - Button
+        button_frame = tk.Frame(main_frame)
+        button_frame.pack(fill="x", pady=(20, 0))
+        
+        close_btn = ttk.Button(
+            button_frame, 
+            text="Close",
+            command=window.destroy,
+            width=15
+        )
+        close_btn.pack(pady=5)
+
+
+
 
 
 # =======================
