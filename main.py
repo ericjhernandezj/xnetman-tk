@@ -267,7 +267,7 @@ class WiFiScannerApp:
         columns = ("SSID", "BSSID", "Signal", "Protected")
         self.networks_tree = ttk.Treeview(
             table_frame, 
-            columns=columns, 
+            columns=columns,
             show="headings", 
             height=15
         )
