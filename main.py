@@ -196,7 +196,6 @@ class WiFiScannerApp:
         self.root = tk.Tk()
         self.setup_main_window()
         self.create_main_frame()
-        self.network_detailed_frame: Optional[tk.Frame] = None
 
     def setup_main_window(self) -> None:
         self.root.geometry("600x400")
@@ -244,6 +243,13 @@ class WiFiScannerApp:
         
         self.loading_label = tk.Label(control_buttons_frame, text="")
         self.loading_label.pack(side="left", padx=(20, 0))
+
+        self.show_saved_connections_button = tk.Button(
+            control_buttons_frame,
+            text="Saved Connections",
+            command=self.show_saved_connections
+        )
+        self.show_saved_connections_button.pack(side="right")
         
         instructions = tk.Label(
             self.main_frame, 
@@ -297,6 +303,9 @@ class WiFiScannerApp:
         
         bssid = values[1]
         NetworkDetailWindow.show_network_details(self.root, self.network_service, bssid)
+
+    def show_saved_connections(self) -> None:
+        SavedConnectionsWindow._create_window(self.root)
 
     def show_error(self, message: str) -> None:
         self.loading_label.config(text="")
@@ -476,9 +485,116 @@ class NetworkDetailWindow:
         )
         close_btn.pack(pady=5)
 
+class SavedConnectionsWindow:
+    @classmethod
+    def _create_window(cls, parent: tk.Tk) -> tk.Toplevel:
+        window = tk.Toplevel(parent)
 
+        window.transient(parent)
 
+        window.title("Saved Connections")
+        window.minsize(500, 350)
+        window.resizable(True, True)
 
+        parent_x = parent.winfo_rootx()
+        parent_y = parent.winfo_rooty()
+        parent_width = parent.winfo_width()
+        parent_height = parent.winfo_height()
+
+        window_width = 500
+        window_height = 350
+
+        position_x = parent_x + (parent_width - window_width) // 2
+        position_y = parent_y + (parent_height - window_height) // 2
+
+        window.geometry(f"{window_width}x{window_height}+{position_x}+{position_y}")
+
+        # Create content
+        cls._create_content(window)
+
+        # Make sure the window is fully created and visible before grabbing focus
+        window.update()
+        window.deiconify()
+        window.focus_force()
+
+        # Schedule grab_set after the window is fully drawn
+        window.after_idle(lambda: window.grab_set())
+
+        return window
+
+    @classmethod
+    def _create_content(cls, window: tk.Toplevel) -> None:
+        service = NetworkService()
+
+        main_frame = tk.Frame(window)
+        main_frame.pack(fill="both", expand=True, padx=20, pady=10)
+
+        title_label = tk.Label(
+            main_frame,
+            text="Saved Connections",
+            font=("Arial", 18, "bold")
+        )
+        title_label.pack(pady=(0, 20))
+
+        details_frame = tk.Frame(main_frame)
+        details_frame.pack(fill="both", expand=True, padx=10)
+
+        saved_conns = service.get_saved_connections()
+
+        if not saved_conns:
+            tk.Label(
+                details_frame,
+                text="No saved connections found.",
+                anchor="w"
+            ).pack(fill="x", pady=2)
+
+        # Table for saved connections
+        columns = ("Name", "Device")
+        tree = ttk.Treeview(
+            details_frame,
+            columns=columns,
+            show="headings",
+            height=15
+        )
+
+        column_configs: Dict[str, ColumnConfig] = {
+            "Name": {"width": 100, "anchor": "w"},
+            "Device": {"width": 100, "anchor": "center"},
+        }
+
+        for col in columns:
+            tree.heading(col, text=col)
+            config = column_configs.get(col, {"width": 100, "anchor": "center"})
+            tree.column(col, width=config["width"], anchor=config["anchor"], stretch=True)
+
+        scrollbar = ttk.Scrollbar(details_frame, orient="vertical", command=tree.yview)
+
+        tree.configure(yscrollcommand=scrollbar.set)
+        tree.pack(side="left", fill="both", expand=True)
+
+        scrollbar.pack(side="right", fill="y")
+
+        for conn in saved_conns:
+            tree.insert(
+                "",
+                tk.END,
+                values=(
+                    conn.name,
+                    conn.device
+                )
+            )
+
+        # Bottom section - Button
+        button_frame = tk.Frame(main_frame)
+        button_frame.pack(fill="x", pady=(20, 0))
+
+        close_btn = ttk.Button(
+            button_frame,
+            text="Close",
+            command=window.destroy,
+            width=15
+        )
+        close_btn.pack(pady=5)
 
 # =======================
 # Application Entry Point
