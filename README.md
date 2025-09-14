@@ -8,16 +8,20 @@ Extended Network Manager (Tkinter version)
 
 - [x] Add REFRESH button
 - [x] Show current connected network
+- [x] Show saved connections
 - [ ] Allow sorting by signal, name, freq, etc
-- [ ] Allow connect to network
+- [ ] Allow to connect to network
+- [ ] Allow viewing password of saved networks
+- [ ] Allow deleting saved networks
+- [ ] Allow sharing network via QR code
 
 ### UI/UX
 
 - [x] Use bars instead of numbers for displaying signal
-- [x] Allow open a independent window for most detailed view
-- [ ] Color by type of security (Green for Open, Yellow for WPA, Red for WEP, etc)
+- [x] Open an independent window for most detailed view of network
+- [ ] Color by type of security (Green for Open, Yellow for WPA, Red for WEP, etc.)
 - [ ] Light/Dark mode toggle
-- [ ] Auto-refresh every X seconds (configurable)
+- [ ] Auto-refresh every 5 seconds
 
 ### Additional information
 
@@ -33,4 +37,4 @@ Extended Network Manager (Tkinter version)
 
 - [ ] Detect Duplicated Net (Evil Twin). Same SSID but different BSSID
 - [ ] Verify weak encryption (WEP). Notify if you in danger
-- [ ] Channel conesgtion analysis. Show most satured channels.
+- [ ] Channel congestion analysis. Show most saturated channels.
