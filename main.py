@@ -1,7 +1,7 @@
 import logging
 import threading
 from dataclasses import dataclass
-from typing import Dict, List, Literal, Optional, Tuple, TypedDict, cast
+from typing import Dict, List, Literal, Optional, Tuple, TypedDict
 import tkinter as tk
 from tkinter import ttk, messagebox
 from nmcli.data.device import DeviceWifi
